@@ -1,7 +1,54 @@
-import React, {useState}from "react";
+import React, { useCallback, useState } from "react";
 import { FaGithub, FaPlus } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import api from "../../services/api";
 
 export default function Main() {
+  const [newRepo, setNewRepo] = useState("");
+  const [repo, setRepo] = useState([]);
+
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+
+      if (!newRepo) return; 
+
+      try {
+        const response = await api.get(`repos/${newRepo}`);
+        const data = {
+          name: response.data.full_name,
+        };
+
+        setRepo((prevRepo) => [...prevRepo, data]);
+        setNewRepo("");
+
+        toast.success("Repositório adicionado com sucesso!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "colored",
+        });
+
+        console.log(repo);
+      } catch (error) {
+        toast.error("Erro ao buscar repositório!", {
+          position: "top-right",
+          autoClose: 3000,
+          theme: "colored",
+        });
+      }
+    },
+    [newRepo, repo]
+  );
+
+  function handleInputChange(e) {
+    setNewRepo(e.target.value);
+  }
+
   return (
     <main className="min-h-screen bg-black flex items-center justify-center px-4">
       <div className="max-w-[700px] w-full bg-white rounded-xl p-8 shadow-2xl">
@@ -11,12 +58,14 @@ export default function Main() {
         </h1>
 
         <form
-          onSubmit={() => {}}
+          onSubmit={handleSubmit}
           className="mt-6 flex flex-row items-center gap-2"
         >
           <input
+            value={newRepo}
             type="text"
             placeholder="Adicionar repositório..."
+            onChange={handleInputChange}
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
           />
           <button
@@ -27,6 +76,8 @@ export default function Main() {
           </button>
         </form>
       </div>
+
+      <ToastContainer />
     </main>
   );
 }
