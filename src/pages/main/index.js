@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { FaGithub, FaPlus, FaBars, FaTrash } from "react-icons/fa";
 import { ImSpinner2 } from "react-icons/im";
 import { ToastContainer, toast } from "react-toastify";
@@ -7,13 +7,24 @@ import api from "../../services/api";
 
 export default function Main() {
   const [newRepo, setNewRepo] = useState("");
-  const [repo, setRepo] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const [repo, setRepo] = useState(() => {
+    const repoStorage = localStorage.getItem("repos");
+    return repoStorage ? JSON.parse(repoStorage) : [];
+  });
+
+
+  useEffect(() => {
+    localStorage.setItem("repos", JSON.stringify(repo));
+    console.log("Salvou no localStorage:", repo);
+  }, [repo]);
 
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
       if (!newRepo) return;
+
       setLoading(true);
 
       try {
@@ -21,6 +32,17 @@ export default function Main() {
         const data = {
           name: response.data.full_name,
         };
+
+        const repoExists = repo.find((r) => r.name === data.name);
+        if (repoExists) {
+          toast.warn("Repositório já adicionado!", {
+            position: "top-right",
+            autoClose: 3000,
+            theme: "colored",
+          });
+          setLoading(false);
+          return;
+        }
 
         setRepo((prevRepo) => [...prevRepo, data]);
         setNewRepo("");
@@ -40,13 +62,12 @@ export default function Main() {
         setLoading(false);
       }
     },
-    [newRepo]
+    [newRepo, repo]
   );
 
   function handleInputChange(e) {
     setNewRepo(e.target.value);
   }
-
 
   const handleDelete = (name) => {
     setRepo((prevRepo) => prevRepo.filter((item) => item.name !== name));
@@ -72,7 +93,7 @@ export default function Main() {
           <input
             value={newRepo}
             type="text"
-            placeholder="Adicionar repositório..."
+            placeholder="Adicionar repositório (ex: facebook/react)..."
             onChange={handleInputChange}
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
           />
