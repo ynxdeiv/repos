@@ -4,6 +4,7 @@ import { ImSpinner2 } from "react-icons/im";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import api from "../../services/api";
+import { Link } from "react-router-dom";
 
 export default function Main() {
   const [newRepo, setNewRepo] = useState("");
@@ -90,7 +91,7 @@ export default function Main() {
           onSubmit={handleSubmit}
           className="mt-6 flex flex-row items-center gap-2"
         >
-          <input
+          <input  
             value={newRepo}
             type="text"
             placeholder="Adicionar repositório (ex: facebook/react)..."
@@ -118,16 +119,14 @@ export default function Main() {
             >
               <span className="text-gray-800">{item.name}</span>
               <div className="flex gap-2">
-                <a
-                  href={`https://github.com/${item.name}`}
-                  target="_blank"
-                  rel="noreferrer"
+                <Link
+                  to={`/repo/${encodeURIComponent(item.name)}`}
                 >
                   <FaBars
                     size={20}
                     className="text-gray-600 hover:text-gray-900 transition"
                   />
-                </a>
+                </Link>
                 <button
                   onClick={() => handleDelete(item.name)}
                   className="p-1 bg-red-500 hover:bg-red-600 text-white rounded-lg transition"

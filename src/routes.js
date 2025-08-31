@@ -7,8 +7,8 @@ export default function PageRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route exact path="/" element={<Main />} />
-        <Route exact path="/repo" element={<Repo />} />
+        <Route path="/" element={<Main />} />
+        <Route path="/repo/:repo" element={<Repo />} />
       </Routes>
     </BrowserRouter>
   );
